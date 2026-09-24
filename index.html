@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YT Picks — YouTube Recommendation Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="logo">
+                <span class="logo-icon">▶</span>
+                <h1>YT Picks</h1>
+            </div>
+            <p class="tagline">Your Personal YouTube Recommendation Assistant</p>
+        </header>
+
+        <!-- Input Section -->
+        <section class="input-section">
+            <!-- Name Input -->
+            <div class="form-group">
+                <label for="userName">Your Name (Optional)</label>
+                <input
+                    type="text"
+                    id="userName"
+                    placeholder="Enter your name for a personalized experience"
+                    autocomplete="off"
+                >
+            </div>
+
+            <!-- Category Selection -->
+            <div class="form-group">
+                <label>Choose a Category</label>
+                <div class="category-buttons" role="group" aria-label="Video Categories">
+                    <button type="button" class="category-btn" data-category="gaming">
+                        🎮 Gaming
+                    </button>
+                    <button type="button" class="category-btn" data-category="music">
+                        🎵 Music
+                    </button>
+                    <button type="button" class="category-btn" data-category="education">
+                        📚 Education
+                    </button>
+                    <button type="button" class="category-btn" data-category="vlog">
+                        📹 Vlog
+                    </button>
+                    <button type="button" class="category-btn" data-category="tech-review">
+                        💻 Tech Review
+                    </button>
+                </div>
+            </div>
+
+            <!-- Error Message Area -->
+            <div id="errorMessage" class="error-message" aria-live="polite"></div>
+
+            <!-- Recommend Button -->
+            <button type="button" id="recommendBtn" class="recommend-btn">
+                Get Recommendation
+            </button>
+        </section>
+
+        <!-- Result Section -->
+        <section id="resultSection" class="result-section hidden">
+            <div class="result-card fade-in">
+                <div class="result-header">
+                    <span class="category-badge" id="resultCategory"></span>
+                </div>
+                <h2 class="video-title" id="videoTitle"></h2>
+                <p class="video-description" id="videoDescription"></p>
+                <div class="why-section">
+                    <span class="why-label">Why you'll like it:</span>
+                    <p class="why-text" id="whyText"></p>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
