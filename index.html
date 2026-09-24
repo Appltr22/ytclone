@@ -8,70 +8,153 @@
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
-        <header class="header">
-            <div class="logo">
-                <span class="logo-icon">▶</span>
-                <h1>YT Picks</h1>
+        <!-- Hero Section -->
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">YT Picks</h1>
+                <p class="hero-subtitle">Find something worth watching.</p>
+                <p class="hero-description">Tell us what you're in the mood for and we'll pick your next video.</p>
+                <div class="hero-animation">
+                    <div class="floating-play"></div>
+                    <div class="video-shapes"></div>
+                </div>
             </div>
-            <p class="tagline">Your Personal YouTube Recommendation Assistant</p>
-        </header>
+        </section>
 
-        <!-- Input Section -->
-        <section class="input-section">
-            <!-- Name Input -->
-            <div class="form-group">
-                <label for="userName">Your Name (Optional)</label>
+        <!-- Personalization Section -->
+        <section class="personalization">
+            <div class="personalization-content">
+                <label for="userName" class="visually-hidden">What should we call you?</label>
                 <input
                     type="text"
                     id="userName"
-                    placeholder="Enter your name for a personalized experience"
-                    autocomplete="off"
+                    placeholder="Enter your name (optional)"
+                    autocomplete="given-name"
+                    aria-label="Enter your name (optional)"
                 >
+                <p id="personalGreeting" class="personal-greeting">What are you watching today?</p>
             </div>
-
-            <!-- Category Selection -->
-            <div class="form-group">
-                <label>Choose a Category</label>
-                <div class="category-buttons" role="group" aria-label="Video Categories">
-                    <button type="button" class="category-btn" data-category="gaming">
-                        🎮 Gaming
-                    </button>
-                    <button type="button" class="category-btn" data-category="music">
-                        🎵 Music
-                    </button>
-                    <button type="button" class="category-btn" data-category="education">
-                        📚 Education
-                    </button>
-                    <button type="button" class="category-btn" data-category="vlog">
-                        📹 Vlog
-                    </button>
-                    <button type="button" class="category-btn" data-category="tech-review">
-                        💻 Tech Review
-                    </button>
-                </div>
-            </div>
-
-            <!-- Error Message Area -->
-            <div id="errorMessage" class="error-message" aria-live="polite"></div>
-
-            <!-- Recommend Button -->
-            <button type="button" id="recommendBtn" class="recommend-btn">
-                Get Recommendation
-            </button>
         </section>
 
-        <!-- Result Section -->
-        <section id="resultSection" class="result-section hidden">
-            <div class="result-card fade-in">
-                <div class="result-header">
-                    <span class="category-badge" id="resultCategory"></span>
+        <!-- Category Selection Section -->
+        <section class="category-selection">
+            <h2 class="section-title">Choose your vibe</h2>
+            <p class="section-description">Select a category that matches your mood</p>
+            <div class="category-grid" role="radiogroup" aria-labelledby="categoryLabel">
+                <div id="categoryLabel" class="visually-hidden">Video categories</div>
+
+                <!-- Gaming Category -->
+                <label class="category-card" tabindex="0" data-category="gaming" aria-checked="false">
+                    <input type="radio" name="category" value="gaming" class="visually-hidden" aria-hidden="true">
+                    <div class="category-icon">🎮</div>
+                    <h3 class="category-name">Gaming</h3>
+                    <p class="category-description">Let's play.</p>
+                </label>
+
+                <!-- Music Category -->
+                <label class="category-card" tabindex="0" data-category="music" aria-checked="false">
+                    <input type="radio" name="category" value="music" class="visually-hidden" aria-hidden="true">
+                    <div class="category-icon">🎵</div>
+                    <h3 class="category-name">Music</h3>
+                    <p class="category-description">Press play.</p>
+                </label>
+
+                <!-- Education Category -->
+                <label class="category-card" tabindex="0" data-category="education" aria-checked="false">
+                    <input type="radio" name="category" value="education" class="visually-hidden" aria-hidden="true">
+                    <div class="category-icon">📚</div>
+                    <h3 class="category-name">Education</h3>
+                    <p class="category-description">Learn something new.</p>
+                </label>
+
+                <!-- Vlog Category -->
+                <label class="category-card" tabindex="0" data-category="vlog" aria-checked="false">
+                    <input type="radio" name="category" value="vlog" class="visually-hidden" aria-hidden="true">
+                    <div class="category-icon">📹</div>
+                    <h3 class="category-name">Vlog</h3>
+                    <p class="category-description">See the world.</p>
+                </label>
+
+                <!-- Tech Review Category -->
+                <label class="category-card" tabindex="0" data-category="tech-review" aria-checked="false">
+                    <input type="radio" name="category" value="tech-review" class="visually-hidden" aria-hidden="true">
+                    <div class="category-icon">💻</div>
+                    <h3 class="category-name">Tech Review</h3>
+                    <p class="category-description">What's worth buying?</p>
+                </label>
+            </div>
+        </section>
+
+        <!-- Action Buttons -->
+        <section class="action-buttons">
+            <button type="button" id="recommendBtn" class="btn-primary">Recommend for Me</button>
+            <button type="button" id="surpriseBtn" class="btn-secondary">Surprise Me</button>
+            <div class="button-feedback">
+                <p id="picksCounter" class="counter-text">Picks generated: 0</p>
+                <p id="currentCategory" class="category-indicator"></p>
+            </div>
+        </section>
+
+        <!-- Empty State -->
+        <section id="emptyState" class="empty-state">
+            <div class="empty-content">
+                <div class="empty-icon">▶</div>
+                <h2 class="empty-title">Your next video is waiting.</h2>
+                <p class="empty-description">Choose a category above and we'll find something for you.</p>
+            </div>
+        </section>
+
+        <!-- Error State -->
+        <section id="errorState" class="error-state" aria-live="assertive">
+            <p class="error-message">Please pick a category first.</p>
+        </section>
+
+        <!-- Recommendation Result -->
+        <section id="resultSection" class="result-section hidden" aria-live="polite">
+            <div class="recommendation-card">
+                <!-- Loading State -->
+                <div id="loadingState" class="loading-state">
+                    <p class="loading-text">Finding something for you...</p>
+                    <div class="loading-dots">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
                 </div>
-                <h2 class="video-title" id="videoTitle"></h2>
-                <p class="video-description" id="videoDescription"></p>
-                <div class="why-section">
-                    <span class="why-label">Why you'll like it:</span>
-                    <p class="why-text" id="whyText"></p>
+
+                <!-- Content State -->
+                <div id="contentState" class="content-state hidden">
+                    <div class="recommendation-header">
+                        <span class="category-badge" id="resultCategory"></span>
+                    </div>
+
+                    <!-- Video Thumbnail Area -->
+                    <div class="thumbnail-container">
+                        <div class="thumbnail-visual" id="thumbnailVisual"></div>
+                        <div class="thumbnail-overlay">
+                            <span class="duration-badge" id="videoDuration"></span>
+                        </div>
+                    </div>
+
+                    <!-- Video Info -->
+                    <div class="video-info">
+                        <h2 class="video-title" id="videoTitle"></h2>
+                        <p class="video-creator" id="videoCreator"></p>
+                    </div>
+
+                    <!-- Description -->
+                    <p class="video-description" id="videoDescription"></p>
+
+                    <!-- Why You'll Like It -->
+                    <div class="why-section">
+                        <h3 class="why-title">✦ Why you'll like it</h3>
+                        <p class="why-text" id="whyText"></p>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="recommendation-actions">
+                        <button type="button" id="pickAgainBtn" class="btn-action">Pick Again</button>
+                    </div>
                 </div>
             </div>
         </section>
