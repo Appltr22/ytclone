@@ -1,481 +1,292 @@
-// ============================================================
-// RECOMMENDATION DATA
-// Multiple recommendation options for every category.
-// Each recommendation includes title, description, creator,
-// duration, why the user will like it, and category.
-// ============================================================
+// ---------- better click sounds (filtered noise + tone, not chiptune) ----------
+let audioCtx, noiseBuffer;
+function getCtx(){
+  audioCtx = audioCtx || new (window.AudioContext || window['webkitAudioContext'])();
+  if(!noiseBuffer){
+    const len = audioCtx.sampleRate * 0.12;
+    noiseBuffer = audioCtx.createBuffer(1, len, audioCtx.sampleRate);
+    const d = noiseBuffer.getChannelData(0);
+    for(let i=0;i<len;i++) d[i] = (Math.random()*2-1) * Math.pow(1-i/len, 2);
+  }
+  return audioCtx;
+}
+function playClick(kind='tap'){
+  try{
+    const ctx = getCtx();
+    const t0 = ctx.currentTime;
+    const cfg = {
+      tap:      {f:2600, g:0.11, tone:1200, dur:.05},
+      positive: {f:3400, g:0.13, tone:1800, dur:.07},
+      negative: {f:1400, g:0.11, tone:500,  dur:.06},
+      remove:   {f:1000, g:0.09, tone:400,  dur:.05},
+      save:     {f:3000, g:0.14, tone:2000, dur:.08},
+    }[kind] || {f:2600,g:0.11,tone:1200,dur:.05};
 
-var recommendations = {
-    gaming: [
-        {
-            title: "Minecraft Survival But Everything Is Random",
-            description: "Explore a chaotic Minecraft survival challenge where every decision changes the entire run.",
-            creator: "PixelForge",
-            duration: "18 min",
-            whyYoullLikeIt: "Perfect if you enjoy unpredictable gameplay and funny, unscripted moments."
-        },
-        {
-            title: "Top 10 Open-World Adventures You Missed",
-            description: "A countdown of hidden gem open-world games that deserve way more attention from the gaming community.",
-            creator: "GameVault",
-            duration: "22 min",
-            whyYoullLikeIt: "If you love exploring massive worlds without a guide, this list will keep you busy for months."
-        },
-        {
-            title: "Building a Castle in 60 Minutes — Speed Build Challenge",
-            description: "Watch a player construct an epic medieval castle from scratch in a creative sandbox game under a strict time limit.",
-            creator: "CraftWorks",
-            duration: "14 min",
-            whyYoullLikeIt: "It's satisfying, creative, and might inspire your next build session."
-        },
-        {
-            title: "Beginner to Pro: FPS Aim Training Guide",
-            description: "A step-by-step guide to improving your aim in first-person shooter games using free training tools.",
-            creator: "AimPro",
-            duration: "15 min",
-            whyYoullLikeIt: "You'll notice real improvement after just a few practice sessions with these tips."
-        },
-        {
-            title: "The Most Creative Game Mods of 2024",
-            description: "A showcase of the most innovative and visually stunning game modifications released this year.",
-            creator: "ModCentral",
-            duration: "20 min",
-            whyYoullLikeIt: "If you enjoy pushing the boundaries of what games can look and feel like."
-        }
-    ],
-    music: [
-        {
-            title: "Making a Beat from Scratch in 10 Minutes",
-            description: "A producer shows how to create a chill lo-fi beat using only free software and a laptop.",
-            creator: "SoundLab",
-            duration: "10 min",
-            whyYoullLikeIt: "Even if you've never made music, you'll want to try after watching this."
-        },
-        {
-            title: "Street Musicians Who Stopped Entire Crowds",
-            description: "A compilation of incredible street performances captured by passersby around the world.",
-            creator: "LiveSound",
-            duration: "25 min",
-            whyYoullLikeIt: "Pure, unfiltered talent that reminds you why live music hits different."
-        },
-        {
-            title: "The Science of Why Some Songs Get Stuck in Your Head",
-            description: "An entertaining breakdown of what makes certain melodies so catchy, featuring fun musical examples.",
-            creator: "MusicTheory",
-            duration: "16 min",
-            whyYoullLikeIt: "You'll finally understand why you can't stop humming that one tune."
-        },
-        {
-            title: "Top 5 Hidden Music Scenes Around the World",
-            description: "A journey through underground music communities you probably didn't know existed.",
-            creator: "WorldSound",
-            duration: "28 min",
-            whyYoullLikeIt: "Discover sounds and cultures that open your musical perspective."
-        },
-        {
-            title: "How to Read Music Without Years of Practice",
-            description: "A practical tutorial on recognizing patterns in sheet music quickly and intuitively.",
-            creator: "NoteWise",
-            duration: "12 min",
-            whyYoullLikeIt: "Great for anyone who wants to understand music without a full degree."
-        }
-    ],
-    education: [
-        {
-            title: "How Bridges Stay Up — Engineering Explained Simply",
-            description: "A visual explanation of the physics behind different bridge designs, using everyday examples.",
-            creator: "EngineeringMadeSimple",
-            duration: "14 min",
-            whyYoullLikeIt: "Complex engineering made so simple you'll feel like an expert by the end."
-        },
-        {
-            title: "Learn Basic Spanish in 20 Minutes",
-            description: "A quick crash course covering greetings, common phrases, and pronunciation tips for absolute beginners.",
-            creator: "LanguageLeap",
-            duration: "20 min",
-            whyYoullLikeIt: "You'll be able to hold a short conversation on your next trip."
-        },
-        {
-            title: "Why Do We Dream? — The Psychology Behind Sleep",
-            description: "An animated explainer covering the leading scientific theories about why humans dream.",
-            creator: "MindWorks",
-            duration: "17 min",
-            whyYoullLikeIt: "Perfect for the curious mind who thinks about weird questions before falling asleep."
-        },
-        {
-            title: "The Hidden Math of Everyday Life",
-            description: "How math silently powers everything from traffic patterns to your favorite music.",
-            creator: "MathVision",
-            duration: "19 min",
-            whyYoullLikeIt: "Transforms how you see the ordinary world in a truly fascinating way."
-        },
-        {
-            title: "How Ancient Civilizations Built Without Modern Tools",
-            description: "Exploring the engineering marvels of ancient societies and how they achieved massive structures.",
-            creator: "HistoryInDepth",
-            duration: "23 min",
-            whyYoullLikeIt: "A fascinating look at human ingenuity that will leave you impressed."
-        }
-    ],
-    vlog: [
-        {
-            title: "A Day in the Life of a University Student in London",
-            description: "Follow a student through lectures, study sessions, and exploring the city on a budget.",
-            creator: "StudentLife",
-            duration: "15 min",
-            whyYoullLikeIt: "It's relatable, calming, and full of practical student life tips."
-        },
-        {
-            title: "I Tried Waking Up at 5 AM for 30 Days — Here's What Happened",
-            description: "A personal experiment documenting the effects of an early morning routine on productivity and mood.",
-            creator: "DailyTest",
-            duration: "18 min",
-            whyYoullLikeIt: "Honest results without the hustle-culture hype — refreshingly real."
-        },
-        {
-            title: "Moving to a New City Alone — My First Week",
-            description: "A vlogger documents the highs and lows of relocating to a city where they know nobody.",
-            creator: "NewBegin",
-            duration: "12 min",
-            whyYoullLikeIt: "Anyone who has started fresh somewhere will feel seen watching this."
-        },
-        {
-            title: "Living in a Tiny House for One Month",
-            description: "What it's really like to live with less space, less stuff, and more intention.",
-            creator: "MinimalLife",
-            duration: "21 min",
-            whyYoullLikeIt: "Great for anyone considering simplifying their lifestyle or space."
-        },
-        {
-            title: "A Week Without Technology — The Real Results",
-            description: "What happens when you unplug from screens and reconnect with the physical world.",
-            creator: "OfflineLife",
-            duration: "16 min",
-            whyYoullLikeIt: "If you feel overwhelmed by digital life, this provides real perspective."
-        }
-    ],
-    "tech-review": [
-        {
-            title: "Best Budget Laptops for Students (2024 Edition)",
-            description: "A comparison of five affordable laptops tested for schoolwork, browsing, and light creative tasks.",
-            creator: "TechCompare",
-            duration: "16 min",
-            whyYoullLikeIt: "Saves you hours of research — the top pick is genuinely surprising."
-        },
-        {
-            title: "Is This the Best Smartphone Camera Ever?",
-            description: "A deep-dive photo and video test of the latest flagship phone camera in real-world conditions.",
-            creator: "CameraLab",
-            duration: "18 min",
-            whyYoullLikeIt: "The side-by-side comparisons make it super easy to see the difference."
-        },
-        {
-            title: "Wireless Earbuds Under $50 — Which Ones Are Actually Good?",
-            description: "Six popular budget earbuds rated on sound quality, comfort, battery life, and mic performance.",
-            creator: "AudioTest",
-            duration: "14 min",
-            whyYoullLikeIt: "Great audio doesn't have to cost a fortune, and this proves it."
-        },
-        {
-            title: "The Most Innovative Gadgets You Haven't Heard Of",
-            description: "A curated list of the most interesting and practical gadgets released this year.",
-            creator: "GadgetWorld",
-            duration: "20 min",
-            whyYoullLikeIt: "Perfect if you enjoy discovering cool tech you never knew existed."
-        },
-        {
-            title: "Are Smart Glasses Actually Useful? A Real Test",
-            description: "A practical review of whether smart glasses are worth the investment in everyday life.",
-            creator: "TechReviewHub",
-            duration: "22 min",
-            whyYoullLikeIt: "An honest look at whether this technology is ready for real-world use."
-        }
-    ]
+    const src = ctx.createBufferSource();
+    src.buffer = noiseBuffer;
+    const bp = ctx.createBiquadFilter();
+    bp.type='bandpass'; bp.frequency.value = cfg.f; bp.Q.value = 1.1;
+    const ng = ctx.createGain();
+    ng.gain.setValueAtTime(cfg.g, t0);
+    ng.gain.exponentialRampToValueAtTime(0.0001, t0 + cfg.dur);
+    src.connect(bp); bp.connect(ng); ng.connect(ctx.destination);
+    src.start(t0); src.stop(t0 + cfg.dur + 0.02);
+
+    const osc = ctx.createOscillator();
+    osc.type='sine'; osc.frequency.setValueAtTime(cfg.tone, t0);
+    osc.frequency.exponentialRampToValueAtTime(cfg.tone*0.7, t0+cfg.dur);
+    const og = ctx.createGain();
+    og.gain.setValueAtTime(cfg.g*0.5, t0);
+    og.gain.exponentialRampToValueAtTime(0.0001, t0+cfg.dur*0.9);
+    osc.connect(og); og.connect(ctx.destination);
+    osc.start(t0); osc.stop(t0+cfg.dur+0.02);
+  }catch(e){}
+}
+
+// ---------- floating background particles (always animating) ----------
+(function(){
+  const canvas = document.getElementById('particles');
+  const ctx = canvas.getContext('2d');
+  let w,h,particles=[], tPrev=performance.now();
+  function resize(){ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; }
+  function init(){
+    resize();
+    const count = Math.min(55, Math.floor((w*h)/30000));
+    particles = Array.from({length:count}, () => ({
+      x:Math.random()*w, y:Math.random()*h,
+      r:Math.random()*3.4+1.4,
+      vx:(Math.random()-0.5)*0.6, vy:(Math.random()-0.5)*0.6,
+      a:Math.random()*0.35+0.1,
+      wob:Math.random()*Math.PI*2
+    }));
+  }
+  function tick(now){
+    const dt = Math.min(32, now-tPrev); tPrev = now;
+    ctx.clearRect(0,0,w,h);
+    particles.forEach(p=>{
+      p.wob += 0.01;
+      p.x += p.vx * (dt/16) + Math.sin(p.wob)*0.15;
+      p.y += p.vy * (dt/16) + Math.cos(p.wob)*0.15;
+      if(p.x<-15)p.x=w+15; if(p.x>w+15)p.x=-15;
+      if(p.y<-15)p.y=h+15; if(p.y>h+15)p.y=-15;
+      const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*6);
+      grad.addColorStop(0, `rgba(255,0,51,${p.a})`);
+      grad.addColorStop(1, 'rgba(255,0,51,0)');
+      ctx.fillStyle = grad;
+      ctx.beginPath(); ctx.arc(p.x,p.y,p.r*6,0,Math.PI*2); ctx.fill();
+    });
+    requestAnimationFrame(tick);
+  }
+  window.addEventListener('resize', init);
+  init(); requestAnimationFrame(tick);
+})();
+
+// ---------- custom SVG genre icons ----------
+const ICONS = {
+  gaming: '<svg class="icon" viewBox="0 0 24 24"><path d="M7 9h10a4 4 0 0 1 4 4.2c0 2-1.2 3.3-2.6 3.3-1 0-1.5-.5-2.4-1.5-.7-.8-1.2-1-2-1s-1.3.2-2 1c-.9 1-1.4 1.5-2.4 1.5C6.2 16.5 5 15.2 5 13.2A4 4 0 0 1 7 9z"/><path d="M8.5 11.5v2M7.5 12.5h2"/><circle cx="16" cy="11.7" r=".6" fill="currentColor" stroke="none"/><circle cx="17.6" cy="13.3" r=".6" fill="currentColor" stroke="none"/></svg>',
+  music: '<svg class="icon" viewBox="0 0 24 24"><path d="M9 18V5l11-2v13"/><circle cx="6.5" cy="18" r="2.5"/><circle cx="17.5" cy="16" r="2.5"/></svg>',
+  tech: '<svg class="icon" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="1.5"/><path d="M8 20h8M12 16v4"/></svg>',
+  cooking: '<svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="13" r="6"/><path d="M17 13h4M9 8l-1.5-2M13 8l1.5-2"/></svg>',
+  comedy: '<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M9 10.2h.01M15 10.2h.01M8.5 14.5c1 1.2 2.2 1.8 3.5 1.8s2.5-.6 3.5-1.8"/></svg>',
+  travel: '<svg class="icon" viewBox="0 0 24 24"><path d="M3 13l8-2 6-8 2 1-4 8 4 1-2 2-4-1-3 5-2-1 1-4-6-1z"/></svg>'
 };
+const LABELS = {gaming:'Gaming',music:'Music',tech:'Tech Review',cooking:'Cooking',comedy:'Comedy Skits',travel:'Travel Vlog'};
 
-// ============================================================
-// APPLICATION STATE
-// ============================================================
+// ---------- per-genre thumbnail design (gradient + watermark icon) ----------
+const GENRE_STYLE = {
+  gaming:  {grad:'linear-gradient(135deg,#2B0512,#FF0033)'},
+  music:   {grad:'linear-gradient(135deg,#3A0018,#FF3D63)'},
+  tech:    {grad:'linear-gradient(135deg,#180A10,#C2002E)'},
+  cooking: {grad:'linear-gradient(135deg,#420011,#FF5C74)'},
+  comedy:  {grad:'linear-gradient(135deg,#330A14,#FF0033)'},
+  travel:  {grad:'linear-gradient(135deg,#1A0210,#E2002C)'},
+};
+function thumbInner(v){
+  return `<div class="thumb-icon">${ICONS[v.genre]}</div>`;
+}
 
-var selectedCategory = null;
-var pickCounter = 0;
-var currentRecommendation = null;
+const VIDEOS = [
+  {genre:'gaming',title:'Speedrunning the Impossible Level',ch:'PixelDash',desc:'A frame-perfect run through the level everyone rage-quit on, explained shot by shot.'},
+  {genre:'gaming',title:'Low-Stakes Farming Sim, Episode 12',ch:'Quiet Fields',desc:'No boss fights, no timers — just crops, chickens, and a soundtrack made for winding down.'},
+  {genre:'gaming',title:'Optimal Build Order, Explained',ch:'PixelDash',desc:'The exact opening sequence top players use, broken down move by move.'},
+  {genre:'gaming',title:'The Bug That Broke a Launch Day',ch:'Patch Notes',desc:'How one overlooked edge case took down servers for six hours, and what fixed it.'},
+  {genre:'gaming',title:'Replaying My First PC Game',ch:'Quiet Fields',desc:'Booting up a 2003 install disc to see if the game holds up twenty years later.'},
 
-// ============================================================
-// DOM REFERENCES
-// ============================================================
+  {genre:'music',title:'Remaking a 2000s Beat From Scratch',ch:'Loop & Layer',desc:'Rebuilding a decade-old sample-based beat using only gear that existed back then.'},
+  {genre:'music',title:'90-Minute Lo-fi for Deep Work',ch:'Loop & Layer',desc:'One continuous mix designed around a steady tempo, made to disappear into the background.'},
+  {genre:'music',title:'Building a Drop From One Kick Drum',ch:'Loop & Layer',desc:'Layering a single drum sample into a full festival-ready drop, step by step.'},
+  {genre:'music',title:'Recording an Acoustic Set on a Rooftop',ch:'Rooftop Sessions',desc:'Four songs, one mic, and whatever the wind decided to add that evening.'},
+  {genre:'music',title:'What Makes a Chord Feel Sad?',ch:'Loop & Layer',desc:'The music theory behind why minor chords read as melancholy, tested with examples.'},
 
-var userNameInput = document.getElementById("userName");
-var greetingText = document.getElementById("personalGreeting");
-var categoryCards = document.querySelectorAll(".category-card");
-var recommendBtn = document.getElementById("recommendBtn");
-var surpriseBtn = document.getElementById("surpriseBtn");
-var emptyState = document.getElementById("emptyState");
-var resultSection = document.getElementById("resultSection");
-var errorState = document.getElementById("errorState");
-var loadingState = document.getElementById("loadingState");
-var contentState = document.getElementById("contentState");
-var resultCategory = document.getElementById("resultCategory");
-var thumbnailVisual = document.getElementById("thumbnailVisual");
-var videoDuration = document.getElementById("videoDuration");
-var videoTitle = document.getElementById("videoTitle");
-var videoCreator = document.getElementById("videoCreator");
-var videoDescription = document.getElementById("videoDescription");
-var whyText = document.getElementById("whyText");
-var pickAgainBtn = document.getElementById("pickAgainBtn");
-var picksCounter = document.getElementById("picksCounter");
-var currentCategory = document.getElementById("currentCategory");
+  {genre:'tech',title:'Why This Chip Design Took 6 Years',ch:'Bench Notes',desc:'The engineering trade-offs behind a chip architecture, explained without the marketing slides.'},
+  {genre:'tech',title:'Building a Keyboard From Bare Parts',ch:'Bench Notes',desc:'Soldering, firmware, and the fifteen small decisions that make a keyboard feel right.'},
+  {genre:'tech',title:'Overclocking Until Something Breaks',ch:'Bench Notes',desc:'Pushing a budget chip past its rated limits to see where the wall actually is.'},
+  {genre:'tech',title:'A Quiet Tour of a Minimal Desk Setup',ch:'Bench Notes',desc:'No RGB, no clutter — just the reasoning behind every item on the desk.'},
+  {genre:'tech',title:'Turning On a Laptop From 2009',ch:'Bench Notes',desc:'Booting old hardware to see what it can still do, and what it never could.'},
 
-// ============================================================
-// CATEGORY SELECTION
-// ============================================================
+  {genre:'cooking',title:'One Pan, Twenty Minutes, No Recipe',ch:'Loose Measurements',desc:'Cooking by instinct with whatever is in the fridge — a format for nights you can\'t plan ahead.'},
+  {genre:'cooking',title:'The Physics of a Perfect Sear',ch:'Loose Measurements',desc:'What actually happens to a steak at 400°F, and why most home stoves can\'t get there.'},
+  {genre:'cooking',title:'Knife Skills, Taught Properly',ch:'Loose Measurements',desc:'The four cuts worth practicing until they\'re automatic, and why they matter.'},
+  {genre:'cooking',title:'Cooking Against a 10-Minute Clock',ch:'Loose Measurements',desc:'A full dinner, timed, with every mistake left in.'},
+  {genre:'cooking',title:'Rebuilding My Grandmother\'s Recipe',ch:'Loose Measurements',desc:'Reconstructing a dish from memory alone, with no written recipe to check against.'},
 
-function selectCategory(category) {
-    // Clear all selected states
-    categoryCards.forEach(function(card) {
-        card.setAttribute("aria-checked", "false");
-        card.classList.remove("selected");
+  {genre:'comedy',title:'Airport Announcements, Ranked',ch:'Deadpan Weekly',desc:'A ranking of the strangest things airports have said over a loudspeaker, reenacted badly.'},
+  {genre:'comedy',title:'Reviewing My Old School Projects',ch:'Deadpan Weekly',desc:'Reading a decade-old essay out loud and grading it against a standard nobody asked for.'},
+  {genre:'comedy',title:'Narrating My Cat\'s Entire Day',ch:'Deadpan Weekly',desc:'A slow, overly serious documentary voice applied to eleven hours of a cat doing nothing.'},
+  {genre:'comedy',title:'Why Is This Joke Structure Everywhere?',ch:'Deadpan Weekly',desc:'Breaking down the setup-twist pattern that shows up in almost every stand-up special.'},
+  {genre:'comedy',title:'Writing a Joke From Zero to Stage',ch:'Deadpan Weekly',desc:'The full editing process behind one joke, from a rough idea to a tested punchline.'},
+
+  {genre:'travel',title:'The Town With No Roads In',ch:'Slow Passage',desc:'A three-day visit to a settlement reachable only by boat or a six-hour hike.'},
+  {genre:'travel',title:'Retracing a Trip From 1998',ch:'Slow Passage',desc:'Following a faded map and an old photo album to see what actually changed.'},
+  {genre:'travel',title:'A Slow Train, No Itinerary',ch:'Slow Passage',desc:'Twelve hours on a regional train with nowhere to be and nothing planned.'},
+  {genre:'travel',title:'48 Hours, Four Cities',ch:'Slow Passage',desc:'A tightly timed sprint through four cities to see how much actually fits in two days.'},
+  {genre:'travel',title:'Planning a Trip Using Only Local Advice',ch:'Slow Passage',desc:'No guidebooks — every stop chosen from a conversation with someone who lives there.'},
+];
+
+function pick(genre){
+  const pool = VIDEOS.filter(v => v.genre===genre);
+  return pool[Math.floor(Math.random()*pool.length)];
+}
+
+
+// ---------- sidebar categories + custom dropdown share the same genre state ----------
+let currentGenre = 'gaming';
+const catList = document.getElementById('catList');
+const ddToggle = document.getElementById('ddToggle');
+const ddMenu = document.getElementById('ddMenu');
+const ddLabel = document.getElementById('ddLabel');
+const ddIcon = document.getElementById('ddIcon');
+
+catList.innerHTML = Object.keys(ICONS).map(g => `<li><button data-genre="${g}">${ICONS[g]}${LABELS[g]}</button></li>`).join('');
+ddMenu.innerHTML = Object.keys(ICONS).map(g => `<button class="dd-opt" data-genre="${g}">${ICONS[g]}${LABELS[g]}</button>`).join('');
+
+function syncGenreUI(){
+  ddLabel.textContent = LABELS[currentGenre];
+  ddIcon.innerHTML = ICONS[currentGenre];
+  document.querySelectorAll('#catList button').forEach(b => b.classList.toggle('active', b.dataset.genre===currentGenre));
+  document.querySelectorAll('.dd-opt').forEach(b => b.classList.toggle('sel', b.dataset.genre===currentGenre));
+}
+function setGenre(g, sound='tap'){
+  currentGenre = g; playClick(sound); syncGenreUI();
+}
+
+ddToggle.addEventListener('click', () => {
+  playClick('tap');
+  ddMenu.classList.toggle('open');
+  ddToggle.classList.toggle('open');
+});
+document.addEventListener('click', (e) => {
+  if(!e.target.closest('.field')){ ddMenu.classList.remove('open'); ddToggle.classList.remove('open'); }
+});
+ddMenu.addEventListener('click', (e) => {
+  const btn = e.target.closest('.dd-opt'); if(!btn) return;
+  setGenre(btn.dataset.genre);
+  ddMenu.classList.remove('open'); ddToggle.classList.remove('open');
+});
+catList.addEventListener('click', (e) => {
+  const btn = e.target.closest('button'); if(!btn) return;
+  setGenre(btn.dataset.genre);
+  showResult(pick(currentGenre));
+  window.scrollTo({top:0, behavior:'smooth'});
+});
+
+// ---------- watch later ----------
+let watchLater = [];
+const wlList = document.getElementById('wlList');
+const wlCount = document.getElementById('wlCount');
+function renderWatchLater(){
+  wlCount.textContent = watchLater.length;
+  if(!watchLater.length){
+    wlList.innerHTML = '<p class="wl-empty">Nothing saved yet. Get a recommendation and press "Watch later" to add it here.</p>';
+    return;
+  }
+  wlList.innerHTML = watchLater.map((v,i) => `
+    <div class="wl-item" data-i="${i}">
+      <div class="swatch" style="background:${GENRE_STYLE[v.genre].grad}"></div>
+      <div class="wl-title">${v.title}</div>
+      <button class="rm" data-i="${i}" title="Remove">✕</button>
+    </div>`).join('');
+  wlList.querySelectorAll('.rm').forEach(btn=>{
+    btn.addEventListener('click', (e)=>{ e.stopPropagation(); playClick('remove'); watchLater.splice(Number(btn.dataset.i),1); renderWatchLater(); });
+  });
+  wlList.querySelectorAll('.wl-item').forEach(item=>{
+    item.addEventListener('click', ()=>{
+      const v = watchLater[Number(item.dataset.i)];
+      setGenre(v.genre, 'tap');
+      showResult(v);
+      window.scrollTo({top:0, behavior:'smooth'});
     });
-
-    // Set selected state on clicked card
-    var selectedCard = document.querySelector('.category-card[data-category="' + category + '"]');
-    if (selectedCard) {
-        selectedCard.setAttribute("aria-checked", "true");
-        selectedCard.classList.add("selected");
-        selectedCategory = category;
-
-        // Update current category indicator
-        currentCategory.textContent = "Currently exploring: " + formatCategoryName(category);
-
-        // Hide error if showing
-        errorState.classList.remove("visible");
-
-        // Scroll smoothly to recommendation area
-        document.querySelector(".action-buttons").scrollIntoView({ behavior: "smooth", block: "nearest" });
-    }
+  });
 }
 
-function formatCategoryName(category) {
-    return category.replace("-", " ").replace(/\b\w/g, function(c) { return c.toUpperCase(); });
+// ---------- recommendation ----------
+const findBtn = document.getElementById('findBtn');
+const result = document.getElementById('result');
+const likeBtn = document.getElementById('likeBtn');
+const dislikeBtn = document.getElementById('dislikeBtn');
+const wlBtn = document.getElementById('wlBtn');
+let currentVideo=null, reaction=null, savedThisResult=false;
+
+function showResult(v){
+  currentVideo=v; reaction=null; savedThisResult=false;
+  likeBtn.classList.remove('on'); dislikeBtn.classList.remove('on');
+  wlBtn.classList.remove('on'); wlBtn.textContent='＋ Watch later';
+  document.getElementById('rmeta').textContent = `SUGGESTED · ${LABELS[v.genre].toUpperCase()}`;
+  document.getElementById('rtitle').textContent = v.title;
+  document.getElementById('rdesc').textContent = `${v.ch} — ${v.desc}`;
+  const rthumb = document.getElementById('rthumb');
+  rthumb.style.background = GENRE_STYLE[v.genre].grad;
+  rthumb.innerHTML = thumbInner(v) + '<span class="play">▶</span>';
+  result.classList.add('show');
 }
 
-// Add click and keyboard event listeners to category cards
-categoryCards.forEach(function(card) {
-    card.addEventListener("click", function() {
-        var category = card.getAttribute("data-category");
-        selectCategory(category);
-    });
+findBtn.addEventListener('click', () => { playClick('tap'); showResult(pick(currentGenre)); });
 
-    card.addEventListener("keydown", function(event) {
-        if (event.key === "Enter" || event.key === " ") {
-            event.preventDefault();
-            var category = card.getAttribute("data-category");
-            selectCategory(category);
-        }
-    });
+likeBtn.addEventListener('click', () => {
+  if(reaction==='like'){ reaction=null; likeBtn.classList.remove('on'); playClick('remove'); }
+  else { reaction='like'; likeBtn.classList.add('on'); dislikeBtn.classList.remove('on'); playClick('positive'); }
+});
+dislikeBtn.addEventListener('click', () => {
+  if(reaction==='dislike'){ reaction=null; dislikeBtn.classList.remove('on'); playClick('remove'); }
+  else { reaction='dislike'; dislikeBtn.classList.add('on'); likeBtn.classList.remove('on'); playClick('negative'); }
+});
+wlBtn.addEventListener('click', () => {
+  if(!currentVideo) return;
+  if(!savedThisResult){
+    playClick('save');
+    watchLater.push(currentVideo);
+    savedThisResult=true; wlBtn.textContent='✓ Saved'; wlBtn.classList.add('on');
+  } else {
+    playClick('remove');
+    const idx = watchLater.findIndex(x=>x.title===currentVideo.title);
+    if(idx>-1) watchLater.splice(idx,1);
+    savedThisResult=false; wlBtn.textContent='＋ Watch later'; wlBtn.classList.remove('on');
+  }
+  renderWatchLater();
 });
 
-// ============================================================
-// PERSONALIZATION
-// ============================================================
-
-userNameInput.addEventListener("input", function() {
-    var name = userNameInput.value.trim();
-    if (name !== "") {
-        greetingText.textContent = name + ", what are you watching today?";
-    } else {
-        greetingText.textContent = "What are you watching today?";
-    }
+// ---------- trending grid (3 videos, one from a different random genre each) ----------
+const trending = document.getElementById('trending');
+const genresShuffled = Object.keys(ICONS).sort(() => Math.random()-0.5).slice(0,3);
+const sample = genresShuffled.map(g => pick(g));
+trending.innerHTML = sample.map((v) => `
+  <div class="card" data-title="${v.title}">
+    <div class="cthumb">
+      <div class="grad" style="position:absolute;inset:0;background:${GENRE_STYLE[v.genre].grad}"></div>
+      ${thumbInner(v)}
+      <div class="play"><svg width="34" height="34" viewBox="0 0 24 24" fill="white"><circle cx="12" cy="12" r="11" fill="rgba(0,0,0,.5)"/><path d="M10 8l6 4-6 4V8z" fill="white"/></svg></div>
+    </div>
+    <div class="cbody"><h3>${v.title}</h3><p>${v.ch}</p></div>
+  </div>`).join('');
+trending.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('click', () => {
+    playClick('tap');
+    const v = VIDEOS.find(x=>x.title===card.dataset.title);
+    setGenre(v.genre, 'tap');
+    showResult(v);
+    result.scrollIntoView({behavior:'smooth', block:'center'});
+  });
 });
 
-// ============================================================
-// RECOMMENDATION GENERATION
-// ============================================================
-
-function getRandomRecommendation(category) {
-    var categoryData = recommendations[category];
-    if (!categoryData || categoryData.length === 0) {
-        return null;
-    }
-
-    // Get previous recommendation if it exists
-    var previousIndex = null;
-    if (currentRecommendation && currentRecommendation.category === category) {
-        previousIndex = recommendations[category].indexOf(currentRecommendation);
-    }
-
-    // Select a different index if possible, avoiding immediate duplicates
-    var newIndex = Math.floor(Math.random() * categoryData.length);
-
-    // If same as previous and more than 1 option exists, try another
-    if (previousIndex !== null && newIndex === previousIndex && categoryData.length > 1) {
-        newIndex = (newIndex + 1) % categoryData.length;
-    }
-
-    return categoryData[newIndex];
-}
-
-function generateRecommendation() {
-    // Validation
-    if (!selectedCategory) {
-        errorState.classList.add("visible");
-        resultSection.classList.remove("visible");
-        setTimeout(function() {
-            errorState.classList.remove("visible");
-        }, 3000);
-
-        // Highlight category selection area
-        document.querySelector(".category-selection").scrollIntoView({ behavior: "smooth", block: "center" });
-        categoryCards.forEach(function(card) {
-            card.style.animation = "none";
-            setTimeout(function() {
-                card.style.animation = "";
-            }, 10);
-        });
-        return;
-    }
-
-    // Hide error
-    errorState.classList.remove("visible");
-
-    // Update current category indicator
-    currentCategory.textContent = "Currently exploring: " + formatCategoryName(selectedCategory);
-
-    // Show loading state
-    resultSection.classList.remove("visible");
-
-    // After short delay, show the loading state, then reveal content
-    setTimeout(function() {
-        resultSection.classList.add("visible");
-        loadingState.classList.remove("hidden");
-        contentState.classList.add("hidden");
-
-        // Short transition delay before revealing
-        setTimeout(function() {
-            // Generate the recommendation
-            var pick = getRandomRecommendation(selectedCategory);
-
-            if (!pick) {
-                videoTitle.textContent = "No recommendations available";
-                videoDescription.textContent = "Please try another category.";
-                videoCreator.textContent = "";
-                whyText.textContent = "";
-                videoDuration.textContent = "0:00";
-                return;
-            }
-
-            // Update recommendation
-            currentRecommendation = Object.assign({ category: selectedCategory }, pick);
-
-            // Update category badge
-            resultCategory.textContent = formatCategoryName(selectedCategory);
-
-            // Update thumbnail based on category
-            setThumbnailVisual(selectedCategory);
-
-            // Update video info
-            videoTitle.textContent = pick.title;
-            videoCreator.textContent = pick.creator || "";
-            videoDuration.textContent = pick.duration || "";
-            videoDescription.textContent = pick.description;
-            whyText.textContent = pick.whyYoullLikeIt;
-
-            // Update pick counter
-            pickCounter++;
-            picksCounter.textContent = "Picks generated: " + pickCounter;
-
-            // Show content with smooth transition
-            loadingState.classList.add("hidden");
-            contentState.classList.remove("hidden");
-            contentState.classList.add("fade-in");
-
-            // Remove animation after it completes
-            setTimeout(function() {
-                contentState.classList.remove("fade-in");
-            }, 500);
-
-        }, 800);
-
-    }, 300);
-}
-
-// ============================================================
-// THUMBNAIL VISUAL GENERATION
-// ============================================================
-
-function setThumbnailVisual(category) {
-    var visual = thumbnailVisual;
-
-    // Clear any existing styles
-    visual.style.backgroundImage = "";
-
-    // Category-specific visual treatments using CSS gradients and patterns
-    switch (category) {
-        case "gaming":
-            visual.style.backgroundImage = "linear-gradient(135deg, #3a1a5a 0%, #2a0f3a 50%, #1a0828 100%)";
-            visual.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;opacity:0.3;">🎮</div>';
-            break;
-        case "music":
-            visual.style.backgroundImage = "linear-gradient(135deg, #1a0a2e 0%, #2d1a4a 50%, #3a205a 100%)";
-            visual.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;opacity:0.3;">🎵</div>';
-            break;
-        case "education":
-            visual.style.backgroundImage = "linear-gradient(135deg, #0a2e3a 0%, #1a4a5a 50%, #2a6a8a 100%)";
-            visual.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;opacity:0.3;">📚</div>';
-            break;
-        case "vlog":
-            visual.style.backgroundImage = "linear-gradient(135deg, #2e1a0a 0%, #3a2a1a 50%, #4a3a2a 100%)";
-            visual.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;opacity:0.3;">📹</div>';
-            break;
-        case "tech-review":
-            visual.style.backgroundImage = "linear-gradient(135deg, #0a1a2e 0%, #1a2a3a 50%, #2a3a4a 100%)";
-            visual.innerHTML = '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:48px;opacity:0.3;">💻</div>';
-            break;
-    }
-}
-
-// ============================================================
-// SURPRISE ME
-// ============================================================
-
-function surpriseMe() {
-    // Randomly select one of the five categories
-    var categories = ["gaming", "music", "education", "vlog", "tech-review"];
-    var randomCategory = categories[Math.floor(Math.random() * categories.length)];
-
-    // Highlight the selected category
-    selectCategory(randomCategory);
-
-    // Generate recommendation after a short delay
-    setTimeout(function() {
-        generateRecommendation();
-    }, 300);
-}
-
-surpriseBtn.addEventListener("click", surpriseMe);
-
-// ============================================================
-// PICK AGAIN
-// ============================================================
-
-pickAgainBtn.addEventListener("click", function() {
-    if (selectedCategory) {
-        generateRecommendation();
-    }
-});
-
-// ============================================================
-// RECOMMEND BUTTON
-// ============================================================
-
-recommendBtn.addEventListener("click", function() {
-    generateRecommendation();
-});
-
-// ============================================================
-// INITIALIZATION
-// ============================================================
-
-// Initialize with empty state visible, result hidden
-emptyState.classList.add("visible");
-resultSection.classList.remove("visible");
+syncGenreUI();
+renderWatchLater();

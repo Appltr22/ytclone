@@ -1,165 +1,70 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YT Picks — YouTube Recommendation Assistant</title>
-    <link rel="stylesheet" href="style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>WatchNext — Video Recommendation Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Hero Section -->
-        <section class="hero">
-            <div class="hero-content">
-                <h1 class="hero-title">YT Picks</h1>
-                <p class="hero-subtitle">Find something worth watching.</p>
-                <p class="hero-description">Tell us what you're in the mood for and we'll pick your next video.</p>
-                <div class="hero-animation">
-                    <div class="floating-play"></div>
-                    <div class="video-shapes"></div>
-                </div>
-            </div>
-        </section>
+<canvas id="particles"></canvas>
 
-        <!-- Personalization Section -->
-        <section class="personalization">
-            <div class="personalization-content">
-                <label for="userName" class="visually-hidden">What should we call you?</label>
-                <input
-                    type="text"
-                    id="userName"
-                    placeholder="Enter your name (optional)"
-                    autocomplete="given-name"
-                    aria-label="Enter your name (optional)"
-                >
-                <p id="personalGreeting" class="personal-greeting">What are you watching today?</p>
-            </div>
-        </section>
+<aside class="sidebar">
+  <div class="brand"><span class="dot"></span>WatchNext</div>
+  <p class="nav-label">Browse</p>
+  <ul class="cat-list" id="catList"></ul>
+  <div class="wl-header">
+    <p class="nav-label" style="margin:0;">Watch later</p>
+    <span class="wl-count" id="wlCount">0</span>
+  </div>
+  <div class="wl-list" id="wlList"></div>
+</aside>
 
-        <!-- Category Selection Section -->
-        <section class="category-selection">
-            <h2 class="section-title">Choose your vibe</h2>
-            <p class="section-description">Select a category that matches your mood</p>
-            <div class="category-grid" role="radiogroup" aria-labelledby="categoryLabel">
-                <div id="categoryLabel" class="visually-hidden">Video categories</div>
+<main>
+<div class="wrap">
+  <section class="hero">
+    <h1>Tell it your genre. It finds your next watch.</h1>
+    <p>A small recommendation assistant built around one real feature of a video platform: matching a genre to a video worth clicking.</p>
+  </section>
 
-                <!-- Gaming Category -->
-                <label class="category-card" tabindex="0" data-category="gaming" aria-checked="false">
-                    <input type="radio" name="category" value="gaming" class="visually-hidden" aria-hidden="true">
-                    <div class="category-icon">🎮</div>
-                    <h3 class="category-name">Gaming</h3>
-                    <p class="category-description">Let's play.</p>
-                </label>
-
-                <!-- Music Category -->
-                <label class="category-card" tabindex="0" data-category="music" aria-checked="false">
-                    <input type="radio" name="category" value="music" class="visually-hidden" aria-hidden="true">
-                    <div class="category-icon">🎵</div>
-                    <h3 class="category-name">Music</h3>
-                    <p class="category-description">Press play.</p>
-                </label>
-
-                <!-- Education Category -->
-                <label class="category-card" tabindex="0" data-category="education" aria-checked="false">
-                    <input type="radio" name="category" value="education" class="visually-hidden" aria-hidden="true">
-                    <div class="category-icon">📚</div>
-                    <h3 class="category-name">Education</h3>
-                    <p class="category-description">Learn something new.</p>
-                </label>
-
-                <!-- Vlog Category -->
-                <label class="category-card" tabindex="0" data-category="vlog" aria-checked="false">
-                    <input type="radio" name="category" value="vlog" class="visually-hidden" aria-hidden="true">
-                    <div class="category-icon">📹</div>
-                    <h3 class="category-name">Vlog</h3>
-                    <p class="category-description">See the world.</p>
-                </label>
-
-                <!-- Tech Review Category -->
-                <label class="category-card" tabindex="0" data-category="tech-review" aria-checked="false">
-                    <input type="radio" name="category" value="tech-review" class="visually-hidden" aria-hidden="true">
-                    <div class="category-icon">💻</div>
-                    <h3 class="category-name">Tech Review</h3>
-                    <p class="category-description">What's worth buying?</p>
-                </label>
-            </div>
-        </section>
-
-        <!-- Action Buttons -->
-        <section class="action-buttons">
-            <button type="button" id="recommendBtn" class="btn-primary">Recommend for Me</button>
-            <button type="button" id="surpriseBtn" class="btn-secondary">Surprise Me</button>
-            <div class="button-feedback">
-                <p id="picksCounter" class="counter-text">Picks generated: 0</p>
-                <p id="currentCategory" class="category-indicator"></p>
-            </div>
-        </section>
-
-        <!-- Empty State -->
-        <section id="emptyState" class="empty-state">
-            <div class="empty-content">
-                <div class="empty-icon">▶</div>
-                <h2 class="empty-title">Your next video is waiting.</h2>
-                <p class="empty-description">Choose a category above and we'll find something for you.</p>
-            </div>
-        </section>
-
-        <!-- Error State -->
-        <section id="errorState" class="error-state" aria-live="assertive">
-            <p class="error-message">Please pick a category first.</p>
-        </section>
-
-        <!-- Recommendation Result -->
-        <section id="resultSection" class="result-section hidden" aria-live="polite">
-            <div class="recommendation-card">
-                <!-- Loading State -->
-                <div id="loadingState" class="loading-state">
-                    <p class="loading-text">Finding something for you...</p>
-                    <div class="loading-dots">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </div>
-                </div>
-
-                <!-- Content State -->
-                <div id="contentState" class="content-state hidden">
-                    <div class="recommendation-header">
-                        <span class="category-badge" id="resultCategory"></span>
-                    </div>
-
-                    <!-- Video Thumbnail Area -->
-                    <div class="thumbnail-container">
-                        <div class="thumbnail-visual" id="thumbnailVisual"></div>
-                        <div class="thumbnail-overlay">
-                            <span class="duration-badge" id="videoDuration"></span>
-                        </div>
-                    </div>
-
-                    <!-- Video Info -->
-                    <div class="video-info">
-                        <h2 class="video-title" id="videoTitle"></h2>
-                        <p class="video-creator" id="videoCreator"></p>
-                    </div>
-
-                    <!-- Description -->
-                    <p class="video-description" id="videoDescription"></p>
-
-                    <!-- Why You'll Like It -->
-                    <div class="why-section">
-                        <h3 class="why-title">✦ Why you'll like it</h3>
-                        <p class="why-text" id="whyText"></p>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="recommendation-actions">
-                        <button type="button" id="pickAgainBtn" class="btn-action">Pick Again</button>
-                    </div>
-                </div>
-            </div>
-        </section>
+  <div class="picker">
+    <div class="field">
+      <label>Genre preference</label>
+      <button class="dd-toggle" id="ddToggle" type="button">
+        <span id="ddIcon"></span>
+        <span class="dd-label" id="ddLabel">Gaming</span>
+        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
+      </button>
+      <div class="dd-menu" id="ddMenu"></div>
     </div>
+    <button class="go" id="findBtn">Find my video</button>
+  </div>
 
-    <script src="script.js"></script>
+  <div class="result" id="result">
+    <div class="result-card">
+      <div class="thumb" id="rthumb"><span class="play">▶</span></div>
+      <div>
+        <p class="rmeta" id="rmeta">SUGGESTED</p>
+        <h3 class="rtitle" id="rtitle"></h3>
+        <p class="rdesc" id="rdesc"></p>
+        <div class="actions">
+          <button class="act" id="likeBtn">👍 Like</button>
+          <button class="act" id="dislikeBtn">👎 Dislike</button>
+          <button class="act" id="wlBtn">＋ Watch later</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row-head"><h2>Trending near you</h2><span>click any card for a sound cue</span></div>
+  <div class="grid" id="trending"></div>
+
+  <footer>WatchNext — a course project demo, not affiliated with any real platform.</footer>
+</div>
+</main>
+
+<script src="script.js"></script>
 </body>
 </html>
