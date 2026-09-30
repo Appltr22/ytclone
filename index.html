@@ -1,70 +1,238 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>WatchNext — Video Recommendation Assistant</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+  <!-- Basic page settings and responsive viewport -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <!-- Application title -->
+  <title>YTClone — Video Recommendation Assistant</title>
+
+  <!-- Google Fonts used for the user interface -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+  <!-- External CSS file containing the application's styling -->
+  <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-<!-- Background floating red circles canvas -->
-<canvas id="particles"></canvas>
 
-<aside class="sidebar">
-  <div class="brand"><span class="dot"></span>WatchNext</div>
-  <p class="nav-label">Browse</p>
-  <ul class="cat-list" id="catList"></ul>
-  <div class="wl-header">
-    <p class="nav-label" style="margin:0;">Watch later</p>
-    <span class="wl-count" id="wlCount">0</span>
-  </div>
-  <div class="wl-list" id="wlList"></div>
-</aside>
+  <!--
+    Background visual effect.
+    JavaScript uses this canvas to display floating red particles.
+    This improves the visual design and user experience of the application.
+  -->
+  <canvas id="particles"></canvas>
 
-<main>
-<div class="wrap">
-  <section class="hero">
-    <h1>Tell it your genre. It finds your next watch.</h1>
-    <p>A small recommendation assistant built around one real feature of a video platform: matching a genre to a video worth clicking.</p>
-  </section>
+  <!--
+    Sidebar navigation.
+    The categories are generated dynamically using JavaScript.
+    This allows the user to select the type of video they want.
+  -->
+  <aside class="sidebar">
 
-  <div class="picker">
-    <div class="field">
-      <label>Genre preference</label>
-      <button class="dd-toggle" id="ddToggle" type="button">
-        <span id="ddIcon"></span>
-        <span class="dd-label" id="ddLabel">Gaming</span>
-        <svg class="chev" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></svg>
-      </button>
-      <div class="dd-menu" id="ddMenu"></div>
+    <!-- Application branding -->
+    <div class="brand">
+      <span class="dot"></span>YTClone
     </div>
-    <button class="go" id="findBtn">Find my video</button>
-  </div>
 
-  <div class="result" id="result">
-    <div class="result-card">
-      <div class="thumb" id="rthumb"><span class="play">▶</span></div>
-      <div>
-        <p class="rmeta" id="rmeta">SUGGESTED</p>
-        <h3 class="rtitle" id="rtitle"></h3>
-        <p class="rdesc" id="rdesc"></p>
-        <div class="actions">
-          <button class="act" id="likeBtn">👍 Like</button>
-          <button class="act" id="dislikeBtn">👎 Dislike</button>
-          <button class="act" id="wlBtn">＋ Watch later</button>
+    <!-- Category navigation label -->
+    <p class="nav-label">Browse</p>
+
+    <!--
+      Category list.
+      JavaScript inserts the available video categories here.
+      These categories are used as the main input for the recommendation system.
+    -->
+    <ul class="cat-list" id="catList"></ul>
+
+    <!--
+      Watch Later section.
+      Allows the user to save recommended videos for later.
+    -->
+    <div class="wl-header">
+      <p class="nav-label" style="margin:0;">Watch later</p>
+      <span class="wl-count" id="wlCount">0</span>
+    </div>
+
+    <!-- Saved recommendations are displayed here -->
+    <div class="wl-list" id="wlList"></div>
+
+  </aside>
+
+
+  <!-- Main application content -->
+  <main>
+    <div class="wrap">
+
+      <!--
+        Introduction section.
+        Explains the purpose of the interactive recommendation system.
+      -->
+      <section class="hero">
+        <h1>Select your genre, it will find your next watch.</h1>
+        <p>
+          A small recommendation assistant built around one real feature
+          of a video platform: matching a genre to a video worth clicking.
+        </p>
+      </section>
+
+
+      <!--
+        USER INPUT SECTION
+
+        The user selects a preferred genre and presses the
+        "Find my video" button.
+
+        This input is processed by JavaScript to determine
+        which recommendation should be displayed.
+      -->
+      <div class="picker">
+
+        <!-- Genre selection field -->
+        <div class="field">
+          <label>Genre preference</label>
+
+          <!--
+            Custom dropdown button.
+            JavaScript controls the opening and closing of the menu
+            and updates the selected genre.
+          -->
+          <button class="dd-toggle" id="ddToggle" type="button">
+
+            <!-- Selected genre icon -->
+            <span id="ddIcon"></span>
+
+            <!-- Selected genre name -->
+            <span class="dd-label" id="ddLabel">Gaming</span>
+
+            <!-- Dropdown arrow -->
+            <svg class="chev" viewBox="0 0 24 24">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+
+          </button>
+
+          <!--
+            Dropdown menu.
+            JavaScript generates the available genre options here.
+          -->
+          <div class="dd-menu" id="ddMenu"></div>
+
+        </div>
+
+        <!--
+          Main input submission button.
+          When clicked, JavaScript processes the selected genre
+          and generates a recommendation.
+        -->
+        <button class="go" id="findBtn">Find my video</button>
+
+      </div>
+
+
+      <!--
+        RECOMMENDATION OUTPUT SECTION
+
+        This section displays the result produced by the program.
+        JavaScript updates the title, description, genre and thumbnail
+        based on the user's selected category.
+      -->
+      <div class="result" id="result">
+
+        <div class="result-card">
+
+          <!--
+            Recommendation thumbnail.
+            The background and icon are changed dynamically
+            according to the recommended video's genre.
+          -->
+          <div class="thumb" id="rthumb">
+            <span class="play">▶</span>
+          </div>
+
+          <div>
+
+            <!-- Displays the recommendation category -->
+            <p class="rmeta" id="rmeta">SUGGESTED</p>
+
+            <!-- Displays the recommended video title -->
+            <h3 class="rtitle" id="rtitle"></h3>
+
+            <!-- Displays the recommended video description -->
+            <p class="rdesc" id="rdesc"></p>
+
+
+            <!--
+              Additional interactive actions.
+              Users can give feedback or save the recommendation.
+            -->
+            <div class="actions">
+
+              <!-- Like button -->
+              <button class="act" id="likeBtn">
+                👍 Like
+              </button>
+
+              <!-- Dislike button -->
+              <button class="act" id="dislikeBtn">
+                👎 Dislike
+              </button>
+
+              <!-- Save recommendation for later -->
+              <button class="act" id="wlBtn">
+                ＋ Watch later
+              </button>
+
+            </div>
+
+          </div>
         </div>
       </div>
+
+
+      <!--
+        TRENDING / ADDITIONAL RECOMMENDATIONS
+
+        Displays several example recommendations from different
+        categories. Clicking a card displays that video as the
+        current recommendation.
+      -->
+      <div class="row-head">
+        <h2>Trending</h2>
+        <span>click any card for a sound cue</span>
+      </div>
+
+      <!--
+        JavaScript dynamically creates the recommendation cards
+        and inserts them into this grid.
+      -->
+      <div class="grid" id="trending"></div>
+
+
+      <!-- Project footer -->
+      <footer>
+        YTClone — a course project demo, not affiliated with any real platform.
+      </footer>
+
     </div>
-  </div>
+  </main>
 
-  <div class="row-head"><h2>Trending near you</h2><span>click any card for a sound cue</span></div>
-  <div class="grid" id="trending"></div>
 
-  <footer>WatchNext — a course project demo, not affiliated with any real platform.</footer>
-</div>
-</main>
-<script src="script.js"></script>
+  <!--
+    JavaScript application logic.
+
+    script.js handles:
+    - User input and category selection
+    - Recommendation logic
+    - Random video selection
+    - Output updates
+    - Like/dislike interaction
+    - Watch Later functionality
+    - Interactive UI effects
+  -->
+  <script src="script.js"></script>
+
 </body>
 </html>
