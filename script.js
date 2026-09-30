@@ -43,12 +43,15 @@ function playClick(kind='tap'){
   }catch(e){}
 }
 
-// ---------- floating background particles (always animating) ----------
+// ---------- Background Floating Red Circles (Canvas Particles) ----------
+// Controls the glowing red circular particles floating and drifting across the screen
 (function(){
   const canvas = document.getElementById('particles');
   const ctx = canvas.getContext('2d');
   let w,h,particles=[], tPrev=performance.now();
   function resize(){ w=canvas.width=window.innerWidth; h=canvas.height=window.innerHeight; }
+
+  // Initialize particles with random positions, radius, velocity, opacity, and wobble
   function init(){
     resize();
     const count = Math.min(55, Math.floor((w*h)/30000));
@@ -60,6 +63,8 @@ function playClick(kind='tap'){
       wob:Math.random()*Math.PI*2
     }));
   }
+
+  // Animation loop: update positions and draw glowing red circles
   function tick(now){
     const dt = Math.min(32, now-tPrev); tPrev = now;
     ctx.clearRect(0,0,w,h);
@@ -69,6 +74,8 @@ function playClick(kind='tap'){
       p.y += p.vy * (dt/16) + Math.cos(p.wob)*0.15;
       if(p.x<-15)p.x=w+15; if(p.x>w+15)p.x=-15;
       if(p.y<-15)p.y=h+15; if(p.y>h+15)p.y=-15;
+
+      // Draw red radial gradient circle
       const grad = ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*6);
       grad.addColorStop(0, `rgba(255,0,51,${p.a})`);
       grad.addColorStop(1, 'rgba(255,0,51,0)');
@@ -290,3 +297,12 @@ trending.querySelectorAll('.card').forEach(card => {
 
 syncGenreUI();
 renderWatchLater();
+
+// ---------- spotlight cards (21st.dev style cursor glow) ----------
+document.addEventListener('mousemove', (e) => {
+  const target = e.target.closest('.card, .picker, .result-card');
+  if (!target) return;
+  const rect = target.getBoundingClientRect();
+  target.style.setProperty('--x', `${e.clientX - rect.left}px`);
+  target.style.setProperty('--y', `${e.clientY - rect.top}px`);
+});
