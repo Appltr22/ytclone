@@ -705,3 +705,97 @@ document.addEventListener('mousemove', (e) => {
     `${e.clientY - rect.top}px`
   );
 });
+
+
+// ---------- Draggable Mascot (Floaty) ----------
+// A red play-button face that can be dragged around the screen.
+// It bobs and casts a shadow at rest; while dragged it shows a
+// dizzy face, its pupils follow the cursor, and it tilts in the
+// drag direction.
+
+const mascot = document.getElementById('mascot'),
+      mascotTilt = document.getElementById('mascotTilt');
+
+// Mascot dimensions (must match the SVG viewBox and CSS size)
+const MASCOT_W = 180,
+      MASCOT_H = 190;
+
+// Eye center points in SVG-local coordinates
+const EYES = [[-32, -18], [32, -18]];
+
+let mascotX = 0,
+    mascotY = 0,
+    mascotDrag = null;
+
+// Clamp a value between two bounds
+function clamp(val, min, max) {
+  return Math.max(min, Math.min(max, val));
+}
+
+// Position the mascot, clamped to the viewport
+function placeMascot(nx, ny) {
+  mascotX = clamp(nx, 0, innerWidth - MASCOT_W);
+  mascotY = clamp(ny, 0, innerHeight - MASCOT_H);
+  mascot.style.transform = `translate(${mascotX}px, ${mascotY}px)`;
+}
+
+// Start centered horizontally, vertically near the bottom
+placeMascot(
+  (innerWidth - MASCOT_W) / 2,
+  innerHeight - MASCOT_H
+);
+
+// Keep position clamped if the window is resized
+addEventListener('resize', () => placeMascot(mascotX, mascotY));
+
+// Pupil tracking: update eye pupil positions on every pointer move
+const pupils = mascot.querySelectorAll('.mascotPupil');
+addEventListener('pointermove', (e) => {
+  pupils.forEach((pupil, i) => {
+    // Convert eye center to screen coordinates
+    const eyeScreenX = mascotX + 90 + EYES[i][0];
+    const eyeScreenY = mascotY + 80 + EYES[i][1];
+
+    const dx = e.clientX - eyeScreenX;
+    const dy = e.clientY - eyeScreenY;
+    const dist = Math.hypot(dx, dy) || 1;
+
+    // Limit pupil offset so it stays inside the eye
+    const offset = Math.min(6, dist / 12);
+
+    pupil.setAttribute('cx', EYES[i][0] + (dx / dist) * offset);
+    pupil.setAttribute('cy', EYES[i][1] + (dy / dist) * offset);
+  });
+});
+
+// Begin drag
+mascot.addEventListener('pointerdown', (e) => {
+  mascotDrag = {
+    offsetX: mascotX - e.clientX,
+    offsetY: mascotY - e.clientY,
+    anchorX: e.clientX
+  };
+  mascot.classList.add('dizzy');
+  mascot.setPointerCapture(e.pointerId);
+  e.preventDefault();
+});
+
+// Continue drag: reposition and tilt
+mascot.addEventListener('pointermove', (e) => {
+  if (!mascotDrag) return;
+  placeMascot(e.clientX + mascotDrag.offsetX, e.clientY + mascotDrag.offsetY);
+  // Tilt proportional to horizontal drag distance since anchor
+  mascotTilt.style.transform = `rotate(${clamp((e.clientX - mascotDrag.anchorX) * 2.5, -30, 30)}deg)`;
+  mascotDrag.anchorX = e.clientX;
+});
+
+// End drag: reset state
+function endMascotDrag() {
+  if (!mascotDrag) return;
+  mascotDrag = null;
+  mascot.classList.remove('dizzy');
+  mascotTilt.style.transform = 'rotate(0deg)';
+}
+
+mascot.addEventListener('pointerup', endMascotDrag);
+mascot.addEventListener('pointercancel', endMascotDrag);

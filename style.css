@@ -990,3 +990,139 @@ footer {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ==========================================================================
+   DRAGGABLE MASCOT (Floaty)
+
+   A playful red play-button face that floats, bobs, and can be dragged
+   around the screen. It bobs and casts a shadow at rest; while dragged it
+   shows a dizzy face, its pupils follow the cursor, and it tilts in the
+   drag direction.
+   ========================================================================== */
+
+/* Mascot container: fixed position, grabbable, sized to the SVG viewBox */
+#mascot {
+  position: fixed;
+  left: 0;
+  top: 0;
+  width: 180px;
+  height: 190px;
+  touch-action: none;
+  cursor: grab;
+  user-select: none;
+  -webkit-user-select: none;
+  z-index: 50;
+}
+
+/* Cursor changes to grabbing while the mascot is being dragged */
+#mascot.dizzy {
+  cursor: grabbing;
+}
+
+/* Tilt wrapper: rotates with the drag direction, springy return */
+#mascotTilt {
+  width: 100%;
+  height: 100%;
+  transition: transform .5s cubic-bezier(.3, 1.8, .5, 1);
+}
+
+/* Faster, linear tilt transition while dragging */
+#mascot.dizzy #mascotTilt {
+  transition: transform .08s linear;
+}
+
+/* SVG fills the container and allows overflow (for orbiting stars) */
+#mascot svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  display: block;
+}
+
+/* Elements that animate around their own center point */
+.mascotBody,
+.mascotShadow,
+.mascotSpin,
+.mascotOrb,
+.mascotNose {
+  transform-box: fill-box;
+  transform-origin: center;
+}
+
+/* Body bobs up and down gently at rest */
+.mascotBody {
+  animation: mascot-bob 3.4s ease-in-out infinite;
+}
+
+/* Shadow pulses to match the body's bob */
+.mascotShadow {
+  animation: mascot-shadow 3.4s ease-in-out infinite;
+}
+
+/* Pause bob and shadow while dragging */
+#mascot.dizzy .mascotBody,
+#mascot.dizzy .mascotShadow {
+  animation-play-state: paused;
+}
+
+/* Show idle face by default, hide dizzy face */
+.mascotIdle { display: block; }
+.mascotDizzy { display: none; }
+
+/* Swap faces when dragging */
+#mascot.dizzy .mascotIdle { display: none; }
+#mascot.dizzy .mascotDizzy { display: block; }
+
+/* Spinning spiral eyes and wavy mouth while dizzy */
+.mascotSpin {
+  animation: mascot-spin .7s linear infinite;
+}
+
+/* Orbiting stars spin at a different speed for variety */
+.mascotOrb {
+  animation: mascot-spin 1.1s linear infinite;
+}
+
+/* Nose spins while dizzy */
+#mascot.dizzy .mascotNose {
+  animation: mascot-spin .9s linear infinite;
+}
+
+/* Star color uses the theme's text color */
+.mascotStar {
+  fill: var(--text);
+  stroke: none;
+}
+
+@keyframes mascot-bob {
+  50% { transform: translateY(-12px); }
+}
+
+@keyframes mascot-shadow {
+  50% { transform: scale(.82); opacity: .1; }
+}
+
+@keyframes mascot-spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Slow animations for users who prefer reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .mascotBody,
+  .mascotShadow {
+    animation-duration: 8s;
+  }
+  .mascotSpin,
+  .mascotOrb,
+  #mascot.dizzy .mascotNose {
+    animation-duration: 3s;
+  }
+}
+
+/* Keyboard focus outline for accessibility */
+#mascot:focus-visible {
+  outline: 3px solid var(--text);
+  outline-offset: 4px;
+  border-radius: 32px;
+}
