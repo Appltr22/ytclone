@@ -1,29 +1,20 @@
-# WatchNext — Video Recommendation Assistant
+# YTClone — Video Recommendation Assistant
 
 ## What It Does
 
-WatchNext is a polished interactive web application inspired by video streaming platforms. It recommends curated videos based on genre preference with a modern dark-themed design, procedural audio feedback, interactive micro-interactions, and watch-later list management.
-
-Users can pick a genre (Gaming, Music, Tech Review, Cooking, Comedy Skits, or Travel Vlog), get dynamic video suggestions with rich metadata, save videos to their Watch Later queue, discover random picks with "Surprise Me", and explore trending cards.
-
-## Technologies Used
-
-- **HTML5** — Semantic page layout featuring an interactive sidebar, custom dropdown picker, recommendation cards, and trending grid
-- **CSS3** — Custom properties design system, animated GPU-accelerated gradient mesh background, scroll-reveal transitions, micro-interaction keyframes, and fully responsive layout
-- **Vanilla JavaScript (ES6+)** — Procedural Web Audio API sound synthesis, IntersectionObserver scroll animations, DOM particle bursts, and state management
-
-Zero external libraries or framework dependencies required.
+YTClone is a video recommendation assistant. Pick a genre from the sidebar (Gaming, Music, Tech Review, Cooking, Comedy Skits, Travel Vlog) and get curated video suggestions with rich metadata. Save videos to your Watch Later queue, hit "Surprise Me" for a random pick across all genres, and explore trending cards.
 
 ## Key Features
 
-- **Procedural Web Audio SFX**: Synthesized UI sound effects (taps, likes, saves, dislikes) using `AudioContext` with a dedicated mute/unmute toggle
-- **Animated Gradient Mesh**: Lightweight, GPU-accelerated CSS animated background mesh blobs
-- **Interactive Micro-Interactions**: Particle burst on "Like", shake feedback on "Dislike", and animated dropdown transitions
-- **Surprise Me**: One-click random discovery across all available genres
-- **Watch Later Queue**: Add, remove, and preview saved videos directly in the sidebar
-- **Scroll Reveal**: Viewport-triggered entrance animations powered by `IntersectionObserver`
-- **Responsive Layout**: Desktop sidebar navigation with adaptive mobile styling
+- **Genre recommendations** — pick a category for curated suggestions
+- **Surprise Me** — one-click random discovery
+- **Watch Later queue** — save and preview videos in the sidebar
+- **Procedural sound effects** — synthesized UI audio (taps, likes, saves) with a mute toggle
+- **Animated background** — floating particles on a gradient mesh
+- **Scroll reveal** — cards fade in as you scroll
+- **Responsive layout** — desktop sidebar with mobile styling
+- **Draggable mascot** — red play-button face that bobs, tilts, and tracks your cursor
 
 ## How to Run
 
-Open `index.html` in any modern web browser. No installation or build steps needed.
+Open `index.html` in any modern web browser. No build steps or dependencies needed.
